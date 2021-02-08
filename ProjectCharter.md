@@ -23,6 +23,7 @@ Brendan Manning will manage the setup of an AWS cloud environment for collection
 	
 ## Metrics
 To quantify the success of the proposed Twitter Disaster Recognition project, the F1 score will be used to evaluate the produced models. The F1 score is a standard method for evaluating machine learning models and is the metric by which all submissions to the Kaggle competition are being evaluated. F1 is calculated using precision and recall which take into account the number of true/false positives and also the number of false negatives so it gives a holistic view of model performance that allows for avoidance of overfitting. The formula for the F1 score is shown in Figure 1. Iterating through multiple models is part of the project’s methodology, so increases in F1 score will be tracked through those iterations to illustrate improvements in the model and to track project progress.
+
 ![alt text](https://github.com/bmagdamo1/DisasterTweets/blob/main/F1.png?raw=true)   
 Figure 1:  Steps for calculation of F1.
 
