@@ -32,34 +32,35 @@ In addition to using the F1 score, some cluster evaluation will be performed to 
 
 ## Plan
 1. Baseline Model Development
-  *Setting up our development environment (git, cloud resources, etc)
-  *Preprocess and clean data (possibly: lowercasing text, stripping special characters, removing stopwords)
-  *EDA to identify relevant keywords, hashtags, and potential computed fields
-  *Train a sci-kit learn model using one-hot encoding 
-  *(Feb 18): First Demo
+  * Setting up our development environment (git, cloud resources, etc)
+  * Preprocess and clean data (possibly: lowercasing text, stripping special characters, removing stopwords)
+  * EDA to identify relevant keywords, hashtags, and potential computed fields
+  * Train a sci-kit learn model using one-hot encoding 
+  * (Feb 18): First Demo
 2. Improved Model Development
-  *Research advanced NLP techniques like the Attention metric 
-3.
+  * Research advanced NLP techniques like the Attention metric 
+  * Improve one-hot encoded model with new metrics identified in previous step.
+  * (March 4): Progress Report Due
+3. Final Model Development and Interactive Dashboard
+  * Scrape Twitter data
+  * Apply the same preprocessing functions developed in second step of Baseline Model Development
+  * Geocode the tweets to approximate coordinates from the given town, city, or county. (Probably use Google Geocoding API)
+  * Classify all tweets as “relating to” or “not relating to” a real disaster.
+  * Develop and publish a Tableau Public dashboard that:
+    * Plots the location of all scraped tweets on a Mapbox ma with dots.
+    * Colors the dots of tweets “relating to” disasters in red and tweets “not relating to” disasters in blue.
+    * Contains a scroll filter to show tweets only from specific hour intervals. (Allows viewers to watch the progression of a disaster as it occured)
+  * (April 15): Project demo on April 15
+  * (April 22): Interactive dashboard demo
 
 
 ## Architecture
-* Data
-  * What data do we expect? Raw data in the customer data sources (e.g. on-prem files, SQL, on-prem Hadoop etc.)
-* Data movement from on-prem to Azure using ADF or other data movement tools (Azcopy, EventHub etc.) to move either
-  * all the data, 
-  * after some pre-aggregation on-prem,
-  * Sampled data enough for modeling 
+The data obtained from Kaggle contains the contents of the Tweet, an associated keyword, a location, the associated id, and the target for the training set all in a .csv format.  The only fields that are not blank for all data points are the id and the text of the Tweet.  By nature, the Twitter data is messy, with associated links, emojis, and extraneous words needed to be removed in order to extract important information. 
 
-* What tools and data storage/analytics resources will be used in the solution e.g.,
-  * ASA for stream aggregation
-  * HDI/Hive/R/Python for feature construction, aggregation and sampling
-  * AzureML for modeling and web service operationalization
-* How will the score or operationalized web service(s) (RRS and/or BES) be consumed in the business workflow of the customer? If applicable, write down pseudo code for the APIs of the web service calls.
-  * How will the customer use the model results to make decisions
-  * Data movement pipeline in production
-  * Make a 1 slide diagram showing the end to end data flow and decision architecture
-    * If there is a substantial change in the customer's business workflow, make a before/after diagram showing the data flow.
+In terms of Python packages, scikit-learn will be used for more standard machine learning techniques and spaCy will be used for the bulk of the Natural Language Processing.  These packages will allow us to easily implement algorithms on our data and train our model.  For the Twitter data scraping, we will need to set up an AWS EC2 instance in order to accomplish this at scale.  Additionally, we will make use of a Sagemaker notebook to train our model in the cloud.  The vast amount of Twitter data we will need to mine in order to create our heat map necessitates this use of the cloud. 
+
+For our visuals, the simulation could be stored in one of two ways: a custom webpage that will make use of HTML and Google maps or a Tableau public dashboard.  The Tableau dashboard is the most likely course of action, as it allows us to easily create and disseminate our simulation.
+
 
 ## Communication
-* How will we keep in touch? Weekly meetings?
-* Who are the contact persons on both sides?
+A group Discord has been established in order to ask specific questions and keep up to date with anything that needs to get done with the project.  Additionally, we have set up weekly meetings on Tuesdays and Fridays in order to stay on top of the progress of our project.  The Tuesday meetings are longer and are devoted to planning our next steps and working on anything that needs to get done.  The Friday meetings function as check-ins to ensure that the project timeline remains accurate.  We will also make use of class time to make progress on the project.
