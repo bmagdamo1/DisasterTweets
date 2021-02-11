@@ -17,6 +17,10 @@ from sklearn.ensemble import AdaBoostClassifier
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
+from sklearn.svm import SVC
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.linear_model import Perceptron
+
 
 train = pd.read_csv('train.csv')
 #stop = stopwords.words('english')
@@ -58,16 +62,19 @@ train['text'] = train['text'].apply(lambda x: str.lower(x))
 #train['text'] = train['text'].apply(lambda x: ' '.join([word for word in x.split() if word not in (stop)]))
 
 
-tweets_pipeline = Pipeline([('CVec', CountVectorizer(stop_words='english')),
+vectorized = Pipeline([('CVec', CountVectorizer(stop_words='english')),
                      ('Tfidf', TfidfTransformer())])
 
-X_train_tranformed = tweets_pipeline.fit_transform(X_train)
-X_test_tranformed = tweets_pipeline.transform(X_test)
+X_train_tranformed = vectorized.fit_transform(X_train)
+X_test_tranformed = vectorized.transform(X_test)
 
 classifiers = {
     "Logistic Regression": LogisticRegression(class_weight='balanced'),
     "Random Forest": RandomForestClassifier(),
     'AdaBoost': AdaBoostClassifier(n_estimators=500),
+    "SVM": SVC(kernel='rbf', gamma=1, C=1, decision_function_shape='ovo'),
+    "Gradient Boosting Classifier": GradientBoostingClassifier(),
+    'Perceptron': Perceptron(class_weight='balanced')
         }
 
 no_classifiers = len(classifiers.keys())
