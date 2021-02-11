@@ -65,8 +65,8 @@ train['text'] = train['text'].apply(lambda x: str.lower(x))
 vectorized = Pipeline([('CVec', CountVectorizer(stop_words='english')),
                      ('Tfidf', TfidfTransformer())])
 
-X_train_tranformed = vectorized.fit_transform(X_train)
-X_test_tranformed = vectorized.transform(X_test)
+X_train_transformed = vectorized.fit_transform(X_train)
+X_test_transformed = vectorized.transform(X_test)
 
 classifiers = {
     "Logistic Regression": LogisticRegression(class_weight='balanced'),
@@ -79,12 +79,12 @@ classifiers = {
 
 no_classifiers = len(classifiers.keys())
 
-def batch_classify(X_train_tranformed, y_train, X_test_tranformed, y_test, verbose = True):
+def batch_classify(X_train_transformed, y_train, X_test_transformed, y_test, verbose = True):
     df_results = pd.DataFrame(data=np.zeros(shape=(no_classifiers,3)), columns = ['Classifier', 'AUC', 'F1 Score'])
     count = 0
     for key, classifier in classifiers.items(): 
-        classifier.fit(X_train_tranformed, y_train)
-        y_predicted = classifier.predict(X_test_tranformed)
+        classifier.fit(X_train_transformed, y_train)
+        y_predicted = classifier.predict(X_test_transformed)
         df_results.loc[count,'Classifier'] = key
         df_results.loc[count,'AUC'] = roc_auc_score(y_test, y_predicted)
         df_results.loc[count,'F1 Score'] = f1_score(y_test, y_predicted)
@@ -92,6 +92,6 @@ def batch_classify(X_train_tranformed, y_train, X_test_tranformed, y_test, verbo
 
     return df_results
 
-df_results = batch_classify(X_train_tranformed, y_train,X_test_tranformed, y_test)
+df_results = batch_classify(X_train_transformed, y_train,X_test_transformed, y_test)
 print(df_results.sort_values(by='F1 Score', ascending=False))
 
