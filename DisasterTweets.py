@@ -6,21 +6,14 @@ import nltk
 #nltk.download()
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_extraction.text import TfidfTransformer
-from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.pipeline import Pipeline
 from xgboost import XGBClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.metrics import roc_auc_score
+from sklearn.linear_model import LogisticRegression, Perceptron
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
+from sklearn.metrics import roc_auc_score, f1_score
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import f1_score
 from sklearn.svm import SVC
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.linear_model import Perceptron
-
 
 train = pd.read_csv('train.csv')
 #stop = stopwords.words('english')
