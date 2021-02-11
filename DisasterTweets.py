@@ -6,9 +6,24 @@ import nltk
 #nltk.download()
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.pipeline import Pipeline
+from xgboost import XGBClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import f1_score
 
 train = pd.read_csv('train.csv')
-stop = stopwords.words('english')
+#stop = stopwords.words('english')
+#test = pd.read_csv('test.csv')
+target = train['target']
+data = train['text']
+X_train, X_test, y_train, y_test = train_test_split(data, target, test_size=0.25)
 
 def url(text):
     stuff = re.compile(r'https?://\S+|www\.\S+')
@@ -41,5 +56,35 @@ train['text'] = train['text'].apply(lambda x: html(x))
 train['text'] = train['text'].apply(lambda x: punctuation(x))
 train['text'] = train['text'].apply(lambda x: str.lower(x))
 #train['text'] = train['text'].apply(lambda x: ' '.join([word for word in x.split() if word not in (stop)]))
-print(stop)
-#print(train['text'][0])
+
+
+tweets_pipeline = Pipeline([('CVec', CountVectorizer(stop_words='english')),
+                     ('Tfidf', TfidfTransformer())])
+
+X_train_tranformed = tweets_pipeline.fit_transform(X_train)
+X_test_tranformed = tweets_pipeline.transform(X_test)
+
+classifiers = {
+    "Logistic Regression": LogisticRegression(class_weight='balanced'),
+    "Random Forest": RandomForestClassifier(),
+    'AdaBoost': AdaBoostClassifier(n_estimators=500),
+        }
+
+no_classifiers = len(classifiers.keys())
+
+def batch_classify(X_train_tranformed, y_train, X_test_tranformed, y_test, verbose = True):
+    df_results = pd.DataFrame(data=np.zeros(shape=(no_classifiers,3)), columns = ['Classifier', 'AUC', 'F1 Score'])
+    count = 0
+    for key, classifier in classifiers.items(): 
+        classifier.fit(X_train_tranformed, y_train)
+        y_predicted = classifier.predict(X_test_tranformed)
+        df_results.loc[count,'Classifier'] = key
+        df_results.loc[count,'AUC'] = roc_auc_score(y_test, y_predicted)
+        df_results.loc[count,'F1 Score'] = f1_score(y_test, y_predicted)
+        count+=1
+
+    return df_results
+
+df_results = batch_classify(X_train_tranformed, y_train,X_test_tranformed, y_test)
+print(df_results.sort_values(by='F1 Score', ascending=False))
+
