@@ -20,7 +20,7 @@ from sklearn.metrics import f1_score
 from sklearn.svm import SVC
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.linear_model import Perceptron
-
+from sklearn.neural_network import MLPClassifier
 
 train = pd.read_csv('train.csv')
 #stop = stopwords.words('english')
@@ -74,15 +74,16 @@ classifiers = {
     'AdaBoost': AdaBoostClassifier(n_estimators=500),
     "SVM": SVC(kernel='rbf', gamma=1, C=1, decision_function_shape='ovo'),
     "Gradient Boosting Classifier": GradientBoostingClassifier(),
-    'Perceptron': Perceptron(class_weight='balanced')
-        }
+    'Perceptron': Perceptron(class_weight='balanced'),
+    'Neural Network': MLPClassifier(random_state=1, max_iter=500)
+}
 
 no_classifiers = len(classifiers.keys())
 
 def batch_classify(X_train_transformed, y_train, X_test_transformed, y_test, verbose = True):
     df_results = pd.DataFrame(data=np.zeros(shape=(no_classifiers,3)), columns = ['Classifier', 'AUC', 'F1 Score'])
     count = 0
-    for key, classifier in classifiers.items(): 
+    for key, classifier in classifiers.items():
         classifier.fit(X_train_transformed, y_train)
         y_predicted = classifier.predict(X_test_transformed)
         df_results.loc[count,'Classifier'] = key
@@ -94,4 +95,3 @@ def batch_classify(X_train_transformed, y_train, X_test_transformed, y_test, ver
 
 df_results = batch_classify(X_train_transformed, y_train,X_test_transformed, y_test)
 print(df_results.sort_values(by='F1 Score', ascending=False))
-
