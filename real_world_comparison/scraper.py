@@ -1,27 +1,34 @@
-import twint
+from scrape_event import ScrapeEvent
 
-from prompts import prompt_limit, prompt_output_file_name
+nashville_bombing = ScrapeEvent(
+    ['2020-12-24', '2020-12-26'],
+    ['nashville', 'los angeles', 'miami', 'chicago', 'philadelphia'],
+    [1,            0,             0,       0,        0             ],
+    scrape_job_iterations=20
+)
 
-def main():
+beirut_explosion = ScrapeEvent(
+    ['2020-08-03', '2020-08-05'],
+    ['beirut', 'london', 'tel aviv', 'ottowa', 'johannesburg'],
+    [1,         0,        0,         0,        0             ],
+    scrape_job_iterations=20
+)
 
-    c = twint.Config()
-    c.Search = "tornado"
-    c.Store_csv = True
-    c.Lang = "en"
+brunswick_co_tornados = ScrapeEvent(
+    ['2021-02-15', '2021-02-17'],
+    ['"34.06923,-78.147"', 'atlanta', 'savannah', 'huntsville', 'raleigh'],
+    [1,                     0,        0,          0,             0       ],
+    scrape_job_iterations=20
+)
 
-    c.Retweets = True
-    c.Replies = True
+nashville_bombing.scrape()
+print(nashville_bombing.toPandas())
+nashville_bombing.toPandas().to_csv("nashville_bombing_event.csv")
 
-    c.Limit = prompt_limit()
-    c.Output = prompt_output_file_name()
+beirut_explosion.scrape()
+print(beirut_explosion.toPandas())
+beirut_explosion.toPandas().to_csv("beirut_explosion_event.csv")
 
-    # 10km around Nashville
-    c.Geo = "36.16784,-86.77816,10km"
-
-    c.Since = "2020-12-24"
-    c.Until = "2020-12-26"
-
-    twint.run.Search(c)
-
-if __name__ == "__main__":
-    main()
+brunswick_co_tornados.scrape()
+print(brunswick_co_tornados.toPandas())
+brunswick_co_tornados.toPandas().to_csv("brunswick_co_tornados_event.csv")

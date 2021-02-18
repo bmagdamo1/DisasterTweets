@@ -32,6 +32,10 @@ class ScrapeJob:
 
         try:
         
+            print("Opening: " + self.__get_twitter_query_url(
+                self.start, self.end, self.near
+            ))
+        
             # Navigate to the URL and wait for
             # the page to load and the search
             # to execute with clientside js
@@ -58,6 +62,10 @@ class ScrapeJob:
                         
                         date = self.__get_tweet_date(c)
                         content = self.__get_tweet_contents(c)
+                        
+                        print(date)
+                        print(content)
+                        print()
                     
                         tweet_dates.append(self.__get_tweet_date(c))
                         tweet_contents.append(self.__get_tweet_contents(c))
@@ -68,15 +76,25 @@ class ScrapeJob:
             traceback.print_exc()
 
         finally:
-            browser.quit()
+        
+        
+            # Check for errors
+            if len(tweet_dates) is not len(tweet_contents):
+                print("tweet_dates: " + str(len(tweet_dates)))
+                print("tweet_contents: " + str(len(tweet_contents)))
+                raise Exception()
+                    
+            # Show our progress
+            print(".", end="")
             
+            # Rebuild the dataframe with what we currently have
             df = pd.DataFrame({
                 'date': tweet_dates,
                 'contents': tweet_contents
             }, columns=['date', 'contents'])
-            
             df = df.drop_duplicates()
-            
+        
+            browser.quit()
             return df
             
     def __make_tweet_dict_object(self, date, contents):
