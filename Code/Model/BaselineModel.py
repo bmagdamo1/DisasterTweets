@@ -24,6 +24,8 @@ data = train['text']
 np.random.seed(19970901)
 X_train, X_test, y_train, y_test = train_test_split(data, target, test_size=0.25)
 
+#create functions that remove links, emojis, and punctuation
+
 def url(text):
     stuff = re.compile(r'https?://\S+|www\.\S+')
     return stuff.sub(r'', text)
@@ -49,6 +51,8 @@ def punctuation(text):
     stuff = str.maketrans('', '', string.punctuation)
     return text.translate(stuff)
 
+#apply functions to 'text' feature and also convert to lower case
+
 train['text'] = train['text'].apply(lambda x: url(x))
 train['text'] = train['text'].apply(lambda x: emoji(x))
 train['text'] = train['text'].apply(lambda x: html(x))
@@ -56,12 +60,15 @@ train['text'] = train['text'].apply(lambda x: punctuation(x))
 train['text'] = train['text'].apply(lambda x: str.lower(x))
 #train['text'] = train['text'].apply(lambda x: ' '.join([word for word in x.split() if word not in (stop)]))
 
+#create a pipline that vectorizes Tweets
 
 vectorized = Pipeline([('CVec', CountVectorizer(stop_words='english')),
                      ('Tfidf', TfidfTransformer())])
 
 X_train_transformed = vectorized.fit_transform(X_train)
 X_test_transformed = vectorized.transform(X_test)
+
+#create a dictionary of classifiers
 
 classifiers = {
     "Logistic Regression": LogisticRegression(class_weight='balanced'),
@@ -73,6 +80,8 @@ classifiers = {
         }
 
 no_classifiers = len(classifiers.keys())
+
+#run all classifiers at once and output AUC, Accuracy, and F1 score.  Rank by F1 score
 
 def batch_classify(X_train_transformed, y_train, X_test_transformed, y_test, verbose = True):
     df_results = pd.DataFrame(data=np.zeros(shape=(no_classifiers,4)), columns = ['Classifier', 'AUC', 'Accuracy', 'F1 Score'])
