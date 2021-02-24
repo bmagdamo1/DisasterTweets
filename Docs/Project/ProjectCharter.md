@@ -65,3 +65,12 @@ For our visuals, the simulation could be stored in one of two ways: a custom web
 
 ## Communication
 A group Discord has been established in order to ask specific questions and keep up to date with anything that needs to get done with the project.  Additionally, we have set up weekly meetings on Tuesdays and Fridays in order to stay on top of the progress of our project.  The Tuesday meetings are longer and are devoted to planning our next steps and working on anything that needs to get done.  The Friday meetings function as check-ins to ensure that the project timeline remains accurate.  We will also make use of class time to make progress on the project.
+
+## Ethics Checklist
+
+- [x] Can we shut down this software in production if it is behaving badly?
+	* Yes, in the situation that the model was producing biased results or if in any way, it appeared that there were concerning errors, the software could 	easily be shut down and pulled from use. 
+- [x] Do we test and monitor for model drift to ensure our software remains fair over time?
+	* Were we able to deploy our model to production (meaning as a method of real-time disaster detection via Twitter) we would continuously monitor its 		performance in detecting real-world disasters. If we see that accuracy or specificity declines over time, we could augment the original database with new 	  data we obtained ourselves and retrain the model. This is a likely scenario as language changes subtly over time and prior linguistic cues may become less 	     relevant as others become moreso. 
+- [x] Do we have a plan to protect and secure user data?
+	* All of the data that we have collected contains no information about the user who made the Tweet.  This means that there is no way to trace any specific 	   Tweets back to the user, so there is no risk of user information being leaked. Our data and analyses are being hosted in a private GitHub repository and any 	public visuals will be configured to not expose any of the model’s source data.
