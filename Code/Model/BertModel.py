@@ -23,15 +23,18 @@ from sklearn.svm import SVC
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.linear_model import Perceptron
 from sklearn.neural_network import MLPClassifier
+from sklearn import model_selection
+
+LOGISTIC_REGRESSION = "Logistic Regression"
+RANDOM_FOREST = "Random Forest"
+ADA_BOOST = "AdaBoost"
+GRADIENT_BOOSTING_CLASSIFIER = "Gradient Boosting Classifier"
+NEURAL_NETWORK = "Neural Network"
 
 train = pd.read_csv('./Data/Raw/train.csv')
-#stop = stopwords.words('english')
-#test = pd.read_csv('test.csv')
 target = train['target']
 data = train['text']
 np.random.seed(19970901)
-
-# X_train, X_test, y_train, y_test = train_test_split(data, target, test_size=0.25)
 
 # Preprocess the text data
 train['text'] = train['text'].apply(lambda x: utils.url(x))
@@ -40,7 +43,6 @@ train['text'] = train['text'].apply(lambda x: utils.html(x))
 train['text'] = train['text'].apply(lambda x: utils.punctuation(x))
 train['text'] = train['text'].apply(lambda x: str.lower(x))
 #train['text'] = train['text'].apply(lambda x: ' '.join([word for word in x.split() if word not in (stop)]))
-
 
 # Setup DistilliBERT from *******
 model_class, tokenizer_class, pretrained_weights = (ppb.DistilBertModel, ppb.DistilBertTokenizer, 'distilbert-base-uncased')
@@ -58,39 +60,75 @@ attention_mask = np.where(padded != 0, 1, 0)
 input_ids = torch.tensor(padded)  
 attention_mask = torch.tensor(attention_mask)
 
-print("Padding and masking complete")
-
-
 with torch.no_grad():
-
-    print("in here...")
     last_hidden_states = model(input_ids, attention_mask=attention_mask)
-    print("did the thing")
-
-print("out of there!!")
 
 features = last_hidden_states[0][:,0,:].numpy()
-
-print("Features and labels extracted")
-
 train_features, test_features, train_labels, test_labels = train_test_split(features, target)
 
-print("Split testing and training data")
+classifiers = {
+    LOGISTIC_REGRESSION: LogisticRegression(class_weight='balanced'),
+    RANDOM_FOREST: RandomForestClassifier(),
+    ADA_BOOST: AdaBoostClassifier(n_estimators=500),
+    GRADIENT_BOOSTING_CLASSIFIER: GradientBoostingClassifier(),
+    NEURAL_NETWORK: MLPClassifier(random_state=1, max_iter=500, hidden_layer_sizes=(100,1000,20))
+    # "SVM": SVC(kernel='rbf', gamma=1, C=1, decision_function_shape='ovo'),
+    # 'Perceptron': Perceptron(class_weight='balanced'),
+}
+
+num_classifiers = len(classifiers.keys())
 
 
-lr_clf = LogisticRegression()
-lr_clf.fit(train_features, train_labels)
-print(lr_clf.score(test_features, test_labels))
+def batch_classify(X_train_transformed, y_train, X_test_transformed, y_test, verbose = True):
+    df_results = pd.DataFrame(data=np.zeros(shape=(num_classifiers,4)), columns = ['Classifier', 'AUC', 'Accuracy', 'F1 Score'])
+    count = 0
+    for key, classifier in classifiers.items():
+        classifier.fit(X_train_transformed, y_train)
+        y_predicted = classifier.predict(X_test_transformed)
+        df_results.loc[count,'Classifier'] = key
+        df_results.loc[count,'AUC'] = roc_auc_score(y_test, y_predicted)
+        df_results.loc[count,'Accuracy'] = accuracy_score(y_test, y_predicted)
+        df_results.loc[count,'F1 Score'] = f1_score(y_test, y_predicted)
+        count+=1
 
-results = pd.DataFrame(data=np.zeros(shape=(1,4)), columns = ['Classifier', 'AUC', 'Accuracy', 'F1 Score'])
-y_predicted = lr_clf.predict(test_features)
+    return df_results
 
-count = 0
-results.loc[count,'Classifier'] = 'LogisticRegression()'
-results.loc[count,'AUC'] = roc_auc_score(test_labels, y_predicted)
-results.loc[count,'Accuracy'] = accuracy_score(test_labels, y_predicted)
-results.loc[count,'F1 Score'] = f1_score(test_labels, y_predicted)
-# print(encodings)
-#print(train)
+df_results = batch_classify(train_features, train_labels, test_features, test_labels)
+print(df_results.sort_values(by='F1 Score', ascending=False))
 
-print(results)
+#Step 1. Define an objective function to be maximized.
+def objective(trial):
+
+    classifier_name = trial.suggest_categorical("classifier", [LOGISTIC_REGRESSION, RANDOM_FOREST, ADA_BOOST, GRADIENT_BOOSTING_CLASSIFIER, NEURAL_NETWORK])
+    
+    # Step 2. Setup values for the hyperparameters:
+    if classifier_name == LOGISTIC_REGRESSION:
+        logreg_c = trial.suggest_float("logreg_c", 1e-10, 1e10, log=True)
+        classifier_obj = classifiers[LOGISTIC_REGRESSION].LogisticRegression(C=logreg_c)
+    elif RANDOM_FOREST:
+        rf_n_estimators = trial.suggest_int("rf_n_estimators", 10, 1000)
+        rf_max_depth = trial.suggest_int("rf_max_depth", 2, 32, log=True)
+        classifier_obj = classifiers[RANDOM_FOREST].RandomForestClassifier(
+            max_depth=rf_max_depth, n_estimators=rf_n_estimators
+        )
+    elif ADA_BOOST:
+        print("Not doing anything for AdaBoost")
+        return
+    elif GRADIENT_BOOSTING_CLASSIFIER:
+        print("Not doing anything for Gradient Boosting Classifier")
+        return
+    elif NEURAL_NETWORK:
+        print("Not doing anything for Neural Network")
+        return   
+    else:
+        print("Not doing anything for (default)")
+        return
+
+    # Step 3: Scoring method:
+    score = model_selection.cross_val_score(classifier_obj, X, y, n_jobs=-1, cv=3)
+    accuracy = score.mean()
+    return accuracy
+
+# Step 4: Running it
+study = optuna.create_study(direction="maximize")
+study.optimize(objective, n_trials=100)
