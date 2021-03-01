@@ -4,6 +4,7 @@ import nltk
 import utils
 import torch
 import optuna
+import json
 import transformers as ppb
 
 from sklearn.linear_model import LogisticRegression
@@ -25,6 +26,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.linear_model import Perceptron
 from sklearn.neural_network import MLPClassifier
 from sklearn import model_selection
+from sklearn.metrics._scorer import make_scorer
 
 LOGISTIC_REGRESSION = "Logistic Regression"
 RANDOM_FOREST = "Random Forest"
@@ -68,9 +70,20 @@ attention_mask = torch.tensor(attention_mask)
 
 print("Figuring out hidden states...")
 with torch.no_grad():
-    print("\tone")
+    print("\tstatus check 1")
     last_hidden_states = model(input_ids, attention_mask=attention_mask)
-    print("\ttwo")
+    print("===============================")
+    try:
+        print(last_hidden_states)
+    finally:
+        print("===============================")
+    
+    try:
+        print(json.dump(last_hidden_states))
+    finally:
+        print("===============================")
+    
+    print("\tstatus check 2")
 print("Parsing hidden state results...")
 features = last_hidden_states[0][:,0,:].numpy()
 train_features, test_features, train_labels, test_labels = train_test_split(features, target)
@@ -103,52 +116,28 @@ def batch_classify(X_train_transformed, y_train, X_test_transformed, y_test, ver
     return df_results
 '''
 
-# df_results = batch_classify(train_features, train_labels, test_features, test_labels)
-# print(df_results.sort_values(by='F1 Score', ascending=False))
+
 
 #Step 1. Define an objective function to be maximized.
 def objective(trial):
 
-    print("In objective (trial=" + str(trial) + ")")
-
-    classifier_name = trial.suggest_categorical("classifier", [LOGISTIC_REGRESSION, RANDOM_FOREST]) # , ADA_BOOST, GRADIENT_BOOSTING_CLASSIFIER, NEURAL_NETWORK])
+    classifier_name = trial.suggest_categorical("classifier", [LOGISTIC_REGRESSION, RANDOM_FOREST, NEURAL_NETWORK])
     
     # Step 2. Setup values for the hyperparameters:
     if classifier_name == LOGISTIC_REGRESSION:
-        print("\tLogistic Regression")
         logreg_c = trial.suggest_float("logreg_c", 1e-10, 1e10, log=True)
-        # classifier_obj = classifiers[LOGISTIC_REGRESSION].LogisticRegression(C=logreg_c)
         classifier_obj = LogisticRegression(C=logreg_c)
     elif RANDOM_FOREST:
-        print("\tRandom Forest")
         rf_n_estimators = trial.suggest_int("rf_n_estimators", 10, 1000)
         rf_max_depth = trial.suggest_int("rf_max_depth", 2, 32, log=True)
         classifier_obj = RandomForestClassifier(
             max_depth=rf_max_depth, n_estimators=rf_n_estimators
         )
-        # classifier_obj = classifiers[RANDOM_FOREST].RandomForestClassifier(
-        #     max_depth=rf_max_depth, n_estimators=rf_n_estimators
-        # )
-    elif ADA_BOOST:
-        print("Not doing anything for AdaBoost")
-        return
-    elif GRADIENT_BOOSTING_CLASSIFIER:
-        print("Not doing anything for Gradient Boosting Classifier")
-        return
-    elif NEURAL_NETWORK:
-        print("Not doing anything for Neural Network")
-        return   
-    else:
-        print("Not doing anything for (default)")
-        return
 
-    # Step 3: Scoring method:
-    print("\tScoring trial...")
-    score = model_selection.cross_val_score(classifier_obj, train_features, train_labels, n_jobs=-1, cv=3)
-    accuracy = score.mean()
-    return accuracy
+    classifier_obj.fit(train_features, train_labels)
+    return f1_score(test_labels, classifier_obj.predict(test_features))
 
 # Step 4: Running it
 print("Running Study...")
 study = optuna.create_study(direction="maximize")
-study.optimize(objective, n_trials=100)
+study.optimize(objective, n_trials=10) #0)
