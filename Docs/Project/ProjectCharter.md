@@ -24,7 +24,7 @@ Brendan Manning will manage the setup of an AWS cloud environment for collection
 ## Metrics
 To quantify the success of the proposed Twitter Disaster Recognition project, the F1 score will be used to evaluate the produced models. The F1 score is a standard method for evaluating machine learning models and is the metric by which all submissions to the Kaggle competition are being evaluated. F1 is calculated using precision and recall which take into account the number of true/false positives and also the number of false negatives so it gives a holistic view of model performance that allows for avoidance of overfitting. The formula for the F1 score is shown in Figure 1. Iterating through multiple models is part of the project’s methodology, so increases in F1 score will be tracked through those iterations to illustrate improvements in the model and to track project progress.
 
-![alt text](https://github.com/bmagdamo1/DisasterTweets/blob/main/F1.png?raw=true)   
+![alt text](https://github.com/bmagdamo1/DisasterTweets/blob/main/Docs/Project/F1.png?raw=true)   
 Figure 1:  Steps for calculation of F1.
 
 In addition to using the F1 score, some cluster evaluation will be performed to evaluate how well the final phase of the project performs at identifying the area of interest for a historical natural disaster. Common metrics for cluster evaluation include Purity, Normalized Mutual Information (NMI), and Rand Index. Purity is a method that focuses on examining the distinctiveness of each cluster and thus it cannot be used in assessing trade off between number of clusters and cluster quality. NMI utilizes an entropy calculation to determine cluster quality and is advantageous as it isn’t affected by differing numbers of clusters. Lastly Rand index is a method of determining similarity between two clusters using actual and predicted labels. Each of these metrics has advantages and disadvantages. It is also possible that a clustering metric specific to this project will be developed but this has not yet been determined. The decision of which metric to use will depend on the outcome of the final phase of the project and will be decided when that phase of the project is reached.
@@ -65,3 +65,12 @@ For our visuals, the simulation could be stored in one of two ways: a custom web
 
 ## Communication
 A group Discord has been established in order to ask specific questions and keep up to date with anything that needs to get done with the project.  Additionally, we have set up weekly meetings on Tuesdays and Fridays in order to stay on top of the progress of our project.  The Tuesday meetings are longer and are devoted to planning our next steps and working on anything that needs to get done.  The Friday meetings function as check-ins to ensure that the project timeline remains accurate.  We will also make use of class time to make progress on the project.
+
+## Ethics Checklist
+
+- [x] Can we shut down this software in production if it is behaving badly?
+	* Yes, in the situation that the model was producing biased results or if in any way, it appeared that there were concerning errors, the software could 	easily be shut down and pulled from use. 
+- [x] Do we test and monitor for model drift to ensure our software remains fair over time?
+	* Were we able to deploy our model to production (meaning as a method of real-time disaster detection via Twitter) we would continuously monitor its 		performance in detecting real-world disasters. If we see that accuracy or specificity declines over time, we could augment the original database with new 	  data we obtained ourselves and retrain the model. This is a likely scenario as language changes subtly over time and prior linguistic cues may become less 	     relevant as others become moreso. 
+- [x] Do we have a plan to protect and secure user data?
+	* All of the data that we have collected contains no information about the user who made the Tweet.  This means that there is no way to trace any specific 	   Tweets back to the user, so there is no risk of user information being leaked. Our data and analyses are being hosted in a private GitHub repository and any 	public visuals will be configured to not expose any of the model’s source data.
