@@ -16,7 +16,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.pipeline import Pipeline
-from xgboost import XGBClassifier
+#from xgboost import XGBClassifier
 from sklearn.linear_model import LogisticRegression, Perceptron
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
 from sklearn.metrics import roc_auc_score, f1_score, accuracy_score
