@@ -29,39 +29,37 @@ Figure 1:  Steps for calculation of F1.
 
 In addition to using the F1 score, some cluster evaluation will be performed to evaluate how well the final phase of the project performs at identifying the area of interest for a historical natural disaster. Common metrics for cluster evaluation include Purity, Normalized Mutual Information (NMI), and Rand Index. Purity is a method that focuses on examining the distinctiveness of each cluster and thus it cannot be used in assessing trade off between number of clusters and cluster quality. NMI utilizes an entropy calculation to determine cluster quality and is advantageous as it isn’t affected by differing numbers of clusters. Lastly Rand index is a method of determining similarity between two clusters using actual and predicted labels. Each of these metrics has advantages and disadvantages. It is also possible that a clustering metric specific to this project will be developed but this has not yet been determined. The decision of which metric to use will depend on the outcome of the final phase of the project and will be decided when that phase of the project is reached.
 
-
-
 ## Plan
 1. Baseline Model Development
   * Setting up our development environment (git, cloud resources, etc)
   * Preprocess and clean data (possibly: lowercasing text, stripping special characters, removing stopwords)
   * EDA to identify relevant keywords, hashtags, and potential computed fields
-  * Train a sci-kit learn model using one-hot encoding 
+  * Train a sci-kit learn model using one-hot encoding
   * (Feb 18): First Demo
 2. Improved Model Development
-  * Research advanced NLP techniques like the Attention metric 
-  * Improve one-hot encoded model with new metrics identified in previous step.
-  * (March 4): Progress Report Due
+  * Research advanced NLP techniques like the Attention metric
+	* Determine whether a model based on Simple Transformers or BERT performs better.
+		* Use Optuna to optimize hyperparameters for BERT
+		* Simple Transformers has a built-in hyperparameter tuner
+	* Try creative methods of bringing F1 score closer to the desired 0.84-0.87 range
+		* Reincorporate the emojis as a source of contextual knowledge
+			* Add the emojis to the end of the one-hot-encoded vector AND/OR simply let BERT or Simple Transformers parse as-is.
+			* (If time permits) Try training the model based on sample data translated to another language and then back to English.
 3. Final Model Development and Interactive Dashboard
-  * Scrape Twitter data
-  * Apply the same preprocessing functions developed in second step of Baseline Model Development
-  * Geocode the tweets to approximate coordinates from the given town, city, or county. (Probably use Google Geocoding API)
-  * Classify all tweets as “relating to” or “not relating to” a real disaster.
-  * Develop and publish a Tableau Public dashboard that:
-    * Plots the location of all scraped tweets on a Mapbox ma with dots.
-    * Colors the dots of tweets “relating to” disasters in red and tweets “not relating to” disasters in blue.
-    * Contains a scroll filter to show tweets only from specific hour intervals. (Allows viewers to watch the progression of a disaster as it occured)
+  * Scrape Twitter data (total of 5-10 real-world disasters)
+  * Using the model developed in Part (2), classify all tweets as “relating to” or “not relating to” a real disaster.
+		* Use an additional metric we'll develop (called the DistressedCityScore) to determine which of our target cities (Nashville, Beirut, New York City, Atlanta, Fukishima, Washington D.C, Texas, Wuhan, Rome, Oklahoma City)
+  * (Time Permitting) Develop and publish a Tableau Public dashboard that:
+    * Demonstrates the ability of the model to figure out which of the 10 cities has a disaster based on tweets from each
   * (April 15): Project demo on April 15
   * (April 22): Interactive dashboard demo
 
-
 ## Architecture
-The data obtained from Kaggle contains the contents of the Tweet, an associated keyword, a location, the associated id, and the target for the training set all in a .csv format.  The only fields that are not blank for all data points are the id and the text of the Tweet.  By nature, the Twitter data is messy, with associated links, emojis, and extraneous words needed to be removed in order to extract important information. 
+The data obtained from Kaggle contains the contents of the Tweet, an associated keyword, a location, the associated id, and the target for the training set all in a .csv format.  The only fields that are not blank for all data points are the id and the text of the Tweet. Those are the fields we will use.
 
-In terms of Python packages, scikit-learn will be used for more standard machine learning techniques and spaCy will be used for the bulk of the Natural Language Processing.  These packages will allow us to easily implement algorithms on our data and train our model.  For the Twitter data scraping, we will need to set up an AWS EC2 instance in order to accomplish this at scale.  Additionally, we will make use of a Sagemaker notebook to train our model in the cloud.  The vast amount of Twitter data we will need to mine in order to create our heat map necessitates this use of the cloud. 
+We are training our model on Temple's HPC GPU instances. We are having a little bit of trouble getting containers to run on the instance. Some details may change in order to get things to efficiently run, but currently, we are using (a) sci-kit learn to train classifiers (b) PyTorch for tensor support and (c) BERT/Simple Transformers for NLP.
 
 For our visuals, the simulation could be stored in one of two ways: a custom webpage that will make use of HTML and Google maps or a Tableau public dashboard.  The Tableau dashboard is the most likely course of action, as it allows us to easily create and disseminate our simulation.
-
 
 ## Communication
 A group Discord has been established in order to ask specific questions and keep up to date with anything that needs to get done with the project.  Additionally, we have set up weekly meetings on Tuesdays and Fridays in order to stay on top of the progress of our project.  The Tuesday meetings are longer and are devoted to planning our next steps and working on anything that needs to get done.  The Friday meetings function as check-ins to ensure that the project timeline remains accurate.  We will also make use of class time to make progress on the project.
