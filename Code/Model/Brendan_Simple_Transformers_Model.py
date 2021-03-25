@@ -37,7 +37,7 @@ stop = stopwords.words('english')
 np.random.seed(19970901)
 
 #specify simple transformer model with number of epochs
-model_args = ClassificationArgs(num_train_epochs = 5,learning_rate = 3e-5)
+model_args = ClassificationArgs(num_train_epochs = 1,learning_rate = 3e-5)
 model = ClassificationModel("roberta", "roberta-base", args=model_args, use_cuda=True)
 
 #Train model and evaluate test set
