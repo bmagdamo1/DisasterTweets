@@ -37,14 +37,14 @@ The final hyperparameter tuning job is being run as this document is written. We
 
 ## Figures
 ![alt text](https://github.com/bmagdamo1/DisasterTweets/blob/main/Docs/ModelReport/Optuna1.png?raw=true)   
-Figure 1:  The distribution of the number of characters in Tweets across both classes.
+Figure 1
 
 ![alt text](https://github.com/bmagdamo1/DisasterTweets/blob/main/Docs/ModelReport/Optuna2.png?raw=true)   
-Figure 2:  The distribution of the number of words in Tweets across both classes.
+Figure 2
 
 ![alt text](https://github.com/bmagdamo1/DisasterTweets/blob/main/Docs/ModelReport/wandb.png?raw=true)   
-Figure 3:  The top 20 most frequently used stop words for each class.
+Figure 3
 
 ![alt text](https://github.com/bmagdamo1/DisasterTweets/blob/main/Docs/ModelReport/Optuna3.png?raw=true)   
-Figure 4:  The top 20 most frequently used keywords for each class.
+Figure 4
 
