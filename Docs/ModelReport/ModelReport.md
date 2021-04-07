@@ -21,6 +21,7 @@ In our case, we used the Helsinki-NLP module to translate to French and then bac
 We used Simple Transformers for all of our Phase 2 model training because of its simple interface. It also included an easy way to ensure training with CUDA support (by passing use_cuda=True to the ClassificationArgs constructor). We wanted to try using both RoBERTa and DistilBERT as we spent a fair amount of time researching the BERT model and knew it was state of the art in terms of NLP. Based upon our research and our experiences in the process of working to get a BERT-based model running, we decided to go with the RoBERTa and DistiliBERT variations of BERT.
 * RoBERTa was appealing because it “removes BERT’s next-sentence pretraining objective,” which is helpful because tweets are more like single sentences than long paragraphs. This model was run in Google Colab because difficulties arose with setting up a container in Temple’s HPC GPU cluster.
 * DistilBERT is a simpler form of BERT and “has 40% less parameters than bert-base-uncased, runs 60% faster while preserving over 95% of BERT’s performances as measured on the GLUE language understanding benchmark” (see source). We were curious how big the tradeoff between training time and performance would be with this model. In the initial stages of the project, the DistilBERT model was taking a long time to run even in Temple’s HPC GPU cluster, so in order to speed up feature extraction,  the algorithm was ran once with the feature weights saved to a text file so that more time could be spent examining hyperparameter optimization. Ultimately though, the tradeoff between performance and training time for DistiliBERT wasn’t too heavily explored as the RoBERTa model, which used Google Colab, was selected for final use instead of DistilliBERT so the challenges with running it on Temple’s GPU resources were able to be avoided.
+
 Brendan Magdamo created the RoBERTa model and Brendan Manning created a DistilBERT model. Through a lengthy process of adjustments, the RoBERTa model eventually achieved an F1 score of 0.835 while the DistilBERT one achieved an F1 score of approximately 0.78. Accordingly, the RoBERTa model was chosen for use in the final phase of the project and will be used for the creation of the final dashboard illustrating the model’s performance.
 
 ## Hyperparameter Tuning
@@ -35,17 +36,15 @@ We also tried to optimize hyperparameters using quasi-cloud-based solution Weigh
 The final hyperparameter tuning job is being run as this document is written. We chose Optuna for the final tuning job because it is much simpler than Weights and Biases, meaning we could be sure we were doing it correctly. Optuna is also more industry-standard, so it will be helpful to talk about using it in future job interviews. 
 
 ## Figures
-![alt text](https://github.com/bmagdamo1/DisasterTweets/blob/main/Docs/DataReport/TweetLength.png?raw=true)   
+![alt text](https://github.com/bmagdamo1/DisasterTweets/blob/main/Docs/ModelReport/Optuna1.png?raw=true)   
 Figure 1:  The distribution of the number of characters in Tweets across both classes.
 
-![alt text](https://github.com/bmagdamo1/DisasterTweets/blob/main/Docs/DataReport/WordCount.png?raw=true)   
+![alt text](https://github.com/bmagdamo1/DisasterTweets/blob/main/Docs/ModelReport/Optuna2.png?raw=true)   
 Figure 2:  The distribution of the number of words in Tweets across both classes.
 
-![alt text](https://github.com/bmagdamo1/DisasterTweets/blob/main/Docs/DataReport/StopWords.png?raw=true)   
+![alt text](https://github.com/bmagdamo1/DisasterTweets/blob/main/Docs/ModelReport/wandb.png?raw=true)   
 Figure 3:  The top 20 most frequently used stop words for each class.
 
-![alt text](https://github.com/bmagdamo1/DisasterTweets/blob/main/Docs/DataReport/KeywordFrequency.png?raw=true)   
+![alt text](https://github.com/bmagdamo1/DisasterTweets/blob/main/Docs/ModelReport/Optuna3.png?raw=true)   
 Figure 4:  The top 20 most frequently used keywords for each class.
 
-![alt text](https://github.com/bmagdamo1/DisasterTweets/blob/main/Docs/DataReport/EmojiFrequency.png?raw=true)   
-Figure 5:  The most freuquently used emojis and their frequencies for each of the two classes.
